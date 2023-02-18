@@ -1,11 +1,12 @@
+
 #
-# Copyright (C) 2018 The LineageOS Project
+# Copyright (C) 2019-2021 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,29 +15,55 @@
 # limitations under the License.
 #
 
-DEVICE_PATH := $(LOCAL_PATH)
+# Inherit from those products. Most specific first.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/product_launched_with_n_mr1.mk)
 
-# Inherit from msm8937-common
-$(call inherit-product, device/xiaomi/msm8937-common/msm8937.mk)
+# Inherit from santoni device
+$(call inherit-product, device/xiaomi/santoni/device.mk)
 
-# Audio
-PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/audio/audio_platform_info.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_platform_info.xml \
-    $(DEVICE_PATH)/audio/mixer_paths_qrd_sku1.xml:$(TARGET_COPY_OUT_VENDOR)/etc/mixer_paths_qrd_sku1.xml
+# Inherit some common sweet stuff.
+$(call inherit-product, vendor/cherish/config/common_full_phone.mk)
 
-# Camera
+# Prebuilt apps
+$(call inherit-product-if-exists, vendor/miuicamera/config.mk)
+
+# GApps
+$(call inherit-product-if-exists, vendor/gapps/core/config.mk)
+
+PRODUCT_DEVICE := santoni
+PRODUCT_BRAND := Xiaomi
+PRODUCT_MODEL := Redmi 4X
+PRODUCT_NAME := lineage_santoni
+BOARD_VENDOR := Xiaomi
+PRODUCT_MANUFACTURER := Xiaomi
+
+# Power
 PRODUCT_PACKAGES += \
-    camera.msm8937 \
-    libmm-qcamera
+    android.hardware.power-service
 
-# Init scripts
-PRODUCT_PACKAGES += \
-    init.santoni.rc \
-    set_baseband.sh
+# Inherit some props from Cherish
+CHERISH_BUILD_TYPE := OFFICIAL
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.cherish.maintainer=ꪖ​ꪀ𝘴ꫝ|邪惡的
 
-# Keylayouts
-PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/keylayout/msm8940-sku6-snd-card_Button_Jack.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/msm8940-sku6-snd-card_Button_Jack.kl
+#Stuff
+TARGET_INCLUDE_STOCK_ARCORE := false
+TARGET_GAPPS_ARCH := arm64
+TARGET_INCLUDE_LIVE_WALLPAPERS := false
+TARGET_SUPPORTS_QUICK_TAP := true
+TARGET_SUPPORTS_GOOGLE_RECORDER := false
+TARGET_FACE_UNLOCK_SUPPORTED := true
+TARGET_BUILD_GRAPHENEOS_CAMERA := true
 
-# Inherit proprietary files
-$(call inherit-product, vendor/xiaomi/santoni/santoni-vendor.mk)
+# Boot animation
+TARGET_BOOT_ANIMATION_RES := 720
+	
+PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
+
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    PRIVATE_BUILD_DESC="santoni-user 7.1.2 N2G47H V9.5.10.0.NAMMIFD release-keys"
+
+# Set BUILD_FINGERPRINT variable to be picked up by both system and vendor build.prop
+BUILD_FINGERPRINT := "Xiaomi/santoni/santoni:7.1.2/N2G47H/V9.5.10.0.NAMMIFD:user/release-keys"
